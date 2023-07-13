@@ -1,7 +1,11 @@
-from flask import Flask
+from flask import Flask, request
 
 app = Flask(__name__)
 
 @app.route("/")
 def hello_world():
-    return "<p>Hello, World! working</p>"
+    arg = request.args.get('arg')
+    if arg:
+        return f'<h2>Hello, {arg}!</h2>'
+    else:
+        return f'<h2>Hello, World!</h2>'
