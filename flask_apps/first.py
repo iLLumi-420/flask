@@ -1,4 +1,4 @@
-from flask import Flask, request, session
+from flask import Flask, request
 from redis import Redis
 
 app = Flask(__name__)
@@ -19,9 +19,9 @@ def hello_world():
     
 @app.route('/count')
 def count():
-    session['visit_count'] = session.get('visit_count', 0) + 1
+    count = redis.incr('visit_count')
     return f'''
-            Total visit: {session["visit_count"]}
+            Total visit: {count}<br>
             <a href='/'>Home</a>
     '''
 
