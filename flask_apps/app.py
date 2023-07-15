@@ -35,11 +35,19 @@ def count():
             <a href='/'>Home</a>
     '''
 
+def check_job_status(job_id):
+    redis_conn = Redis()
+    job = Job.fetch(job_id, connection=redis_conn)
+    if job.is_finished:
+        word_count = job.result
+        redis_conn.set('word_count', word_count)
+        return f'<p>Job is finished. Word count: {word_count}</p>'
+    else:
+        return '<p>Job is still running. Please check again later.</p>'
 
 @app.route('/process')
 def process():
     job = queue.enqueue(count_words_at_url, args=('https://tihalt.com/examples-of-static-websites/',))
-    
     job_id = job.get_id()
     return f'''
         <p>Job is enqueued at job id: {job_id}</p>
@@ -48,14 +56,8 @@ def process():
     
 @app.route('/result/<job_id>')
 def get_job_result(job_id):
-    redis_conn = Redis()
-    job = Job.fetch(job_id, connection=redis_conn)
-    if job.is_finished:
-        word_count = job.result
-        redis.set('word_count', word_count)  
-        return f'<p>Job is finished. Word count: {word_count}</p>'
-    else:
-        return '<p>Job is still running. Please check again later.</p>'
+    result = check_job_status(job_id)
+    return f'<p>{result}</p>'
 
 if __name__ == '__main__':
     app.run()
