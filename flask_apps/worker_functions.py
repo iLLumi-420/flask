@@ -7,5 +7,4 @@ def count_words(url):
     res = requests.get(url)
     words = res.text.split()
     word_count = len(words)
-    print(words)
     return word_count
