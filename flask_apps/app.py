@@ -2,7 +2,7 @@ from flask import Flask, request
 from redis import Redis
 from rq import Queue
 from rq.job import Job
-from worker_functions import count_words_at_url
+from worker_functions import count_words
 
 
 app = Flask(__name__)
@@ -47,11 +47,12 @@ def check_job_status(job_id):
 
 @app.route('/process')
 def process():
-    job = queue.enqueue(count_words_at_url, args=('https://tihalt.com/examples-of-static-websites/',))
+    job = queue.enqueue(count_words, 'https://tihalt.com/examples-of-static-websites/')
     job_id = job.get_id()
     return f'''
         <p>Job is enqueued at job id: {job_id}</p>
         <a href="/result/{job_id}">Check result</a>
+        <a href="/">Home</a>
     '''
     
 @app.route('/result/<job_id>')
@@ -60,4 +61,4 @@ def get_job_result(job_id):
     return f'<p>{result}</p>'
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

@@ -1,6 +1,6 @@
 from redis import Redis
 from rq import Worker, Queue, Connection
-import worker_functions
+from worker_functions import count_words
 
 redis = Redis()
 queue = Queue(connection=redis)
