@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, session
 from flask_apps.worker_functions import count_words
 from redis import Redis
 from rq import Queue
@@ -33,17 +33,40 @@ def signup_user():
             return render_template('signup.html', error_message=error_message)
         
         redis.hset('users', username, password)
-        return redirect(url_for('hello_world'))
+        return redirect(url_for('login_user'))
 
     return render_template('signup.html')
 
         
+@app.route('/login', methods = ['GET','POST'])
+def login_user():
+
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        if not redis.hexists('users', username):
+            error_message = 'Incorrect usename or password'
+            return render_template('login.html', error_message=error_message)
         
+        stored_password = redis.hget('users', username).decode('utf-8')
+
+        if stored_password != password:
+            print(password)
+            print(stored_password)
+            error_message = 'Incorrect username or password'
+            return render_template('login.html', error_message=error_message)
+        
+        session['user'] = username
+        print('redirecting to home')
+        return redirect(url_for('home'))
+
+    return render_template('login.html')    
 
 
 
 @app.route('/')
-def hello_world():
+def home():
     arg = request.args.get('arg')
     if arg:
         return f'<h2>Hello, {arg}!</h2>'
