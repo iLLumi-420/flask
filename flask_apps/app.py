@@ -1,15 +1,44 @@
-from flask import Flask, request
+from flask import Flask, request, render_template, redirect, url_for
+from flask_apps.worker_functions import count_words
 from redis import Redis
 from rq import Queue
 from rq.job import Job
-from flask_apps.worker_functions import count_words
-
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
 
 redis = Redis()
 queue = Queue(connection=redis)
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup_user():
+
+    if request.method == 'POST':
+    
+        username = request.form['username']
+        password = request.form['password']
+        confirm = request.form['confirm']
+
+        if not username or not password or not confirm:
+                error_message = 'Please fill out all the required fields.'
+                return render_template('signup.html', error_message=error_message)
+
+        if password != confirm:
+            error_message = 'Password and confirm do not match. Please try again.'
+            return render_template('signup.html', error_message=error_message)
+
+        if redis.hexists('users', username):
+            error_message = 'User name already taken'
+            return render_template('signup.html', error_message=error_message)
+        
+        redis.hset('users', username, password)
+        return redirect(url_for('hello_world'))
+
+    return render_template('signup.html')
+
+        
+        
 
 
 
