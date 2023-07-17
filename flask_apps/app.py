@@ -24,8 +24,12 @@ def home():
         key = f'urls_{user}'
         redis.lpush(key, url)
         flash('URL has been saved')
+    
+    user_urls = redis.lrange(f'urls_{user}',0, -1)
 
-    return render_template('index.html')
+    
+
+    return render_template('index.html', user_urls=user_urls)
 
 @app.route('/count')
 @login_required
@@ -52,13 +56,12 @@ def check_job_status(job_id):
 @app.route('/process')
 @login_required
 def process():
-    job = queue.enqueue(count_words, 'https://tihalt.com/examples-of-static-websites/')
-    job_id = job.get_id()
-    return f'''
-        <p>Job is enqueued at job id: {job_id}</p>
-        <a href="/result/{job_id}">Check result</a>
-        <a href="/">Home</a>
-    '''
+    user = session['user']
+    user_urls = redis.lrange(f'urls_{user}', 0, -1)
+    for url in user_urls:
+        job = queue.enqueue(count_words, url)
+        return f'{job} enqueued'
+    
 
 @app.route('/result/<job_id>')
 @login_required

@@ -24,6 +24,12 @@
       Enter url: <input type="text" name="url" id="url">
       <input type="submit" value="Submit url">
     </form>
+
+    <div class="urls">
+      {% for url in user_urls %}
+        <li>{{loop.index}}:{{url.decode('utf-8')}}</li>
+      {% endfor %}
+    </div>
     
   </body>
 </html>
