@@ -1,8 +1,21 @@
-from flask import Blueprint, request, render_template, redirect, url_for, session
+from flask import Blueprint, request, render_template, redirect, url_for, session, flash
 from redis import Redis
+from functools import wraps
 
 auth_bp = Blueprint('auth', __name__)
 redis = Redis()
+
+
+def login_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'user' in session:
+            return f(*args, **kwargs)
+        else:
+            flash("You need to login first")
+            return redirect(url_for('auth.login_user'))
+
+    return wrap
 
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup_user():

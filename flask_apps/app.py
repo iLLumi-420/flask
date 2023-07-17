@@ -1,9 +1,9 @@
-from flask import Flask, request
+from flask import Flask, request, render_template, session,flash
 from flask_apps.worker_functions import count_words
 from redis import Redis
 from rq import Queue
 from rq.job import Job
-from auth import auth_bp
+from auth import auth_bp, login_required
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
@@ -15,21 +15,20 @@ queue = Queue(connection=redis)
 app.register_blueprint(auth_bp)
 
 
-
-
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
+@login_required
 def home():
-    arg = request.args.get('arg')
-    if arg:
-        return f'<h2>Hello, {arg}!</h2>'
-    else:
-        return '''
-                <h2>Hello, World!</h2>
-                <a href='/count'>Count Page</a>
-                <a href='/process'>Process Page</a>
-        '''
+    user = session['user']
+    if request.method == 'POST':
+        url = request.form['url']
+        key = f'urls_{user}'
+        redis.lpush(key, url)
+        flash('URL has been saved')
+
+    return render_template('index.html')
 
 @app.route('/count')
+@login_required
 def count():
     count = redis.incr('visit_count')
     name = redis.get('name')
@@ -49,7 +48,9 @@ def check_job_status(job_id):
     else:
         return '<p>Job is still running. Please check again later.</p>'
 
+
 @app.route('/process')
+@login_required
 def process():
     job = queue.enqueue(count_words, 'https://tihalt.com/examples-of-static-websites/')
     job_id = job.get_id()
@@ -58,8 +59,9 @@ def process():
         <a href="/result/{job_id}">Check result</a>
         <a href="/">Home</a>
     '''
-    
+
 @app.route('/result/<job_id>')
+@login_required
 def get_job_result(job_id):
     result = check_job_status(job_id)
     return f'<p>{result}</p>'

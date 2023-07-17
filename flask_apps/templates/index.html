@@ -10,9 +10,20 @@
     </script>
   </head>
   <body>
-    <h2>Hello, World!</h2>
-    <a href="/count">Count Page</a>
-    <h2>Process Page</h2>
-    <div id="result-container"></div>
+    <nav style="display: flex;">
+      <ul>
+        <a href="/logout">Logout</a>
+        <a href="/count">Count_Page</a>
+        <a href="/process">Process_Page</a>
+      </ul>
+    </nav>
+    <hr>
+    <h2>Home Page</h2>
+
+    <form action="/" method="post">
+      Enter url: <input type="text" name="url" id="url">
+      <input type="submit" value="Submit url">
+    </form>
+    
   </body>
 </html>
