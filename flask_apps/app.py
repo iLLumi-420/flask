@@ -26,10 +26,13 @@ def count():
 
 
 @app.route('/', methods=['GET', 'POST'])
-@login_required
 def home():
-    user = session['user']
-    key = f'urls_{user}'
+    if 'user' not in session:
+        session['user']= 'user_1' + str(redis.incr('user_count'))
+
+    print(session['user'])
+    
+    key = f'urls_{session["user"]}'
 
     if request.method == 'POST':
         url = request.form['url']
@@ -41,7 +44,6 @@ def home():
 
 
     user_urls = redis.lrange(key,0, -1) 
-    print(user_urls) 
 
     job_ids = []
     for url in user_urls:
@@ -62,14 +64,13 @@ def check_job_status(job_id):
     job = Job.fetch(job_id, connection=redis_conn)
     if job.is_finished:
         word_count = job.result
-        redis_conn.set('word_count', word_count)
+        redis_conn.set('word_count_{job.id}', word_count)
         return f'<p>Job is finished. Word count: {word_count}</p>'
     else:
         return '<p>Job is still running. Please check again later.</p>'
 
 
 @app.route('/result/<job_id>')
-@login_required
 def get_job_result(job_id):
     result = check_job_status(job_id)
     return f'<p>{result}</p>'
