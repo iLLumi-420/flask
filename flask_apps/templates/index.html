@@ -25,11 +25,28 @@
       <input type="submit" value="Submit url">
     </form>
 
-    <div class="urls">
-      {% for url in user_urls %}
-        <li>{{loop.index}}:{{url.decode('utf-8')}}</li>
-      {% endfor %}
+
+    
+    <div class="table-container">
+      <table>
+        <tr>
+          <th>S.N.</th>
+          <th>URL</th>
+          <th>Result</th>
+        </tr>
+        {% for url, job_id in data %}
+          <tr>
+            <td>{{loop.index}}</td>
+            <td>{{url.decode('utf-8')}}</td>
+            <td><a href="/result/{{job_id}}">See result</a></td>
+          </tr>
+        {% endfor %}
+      </table>
     </div>
+      
+	   
     
   </body>
 </html>
+
+
