@@ -1,20 +1,13 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script>
-      const eventSource = new EventSource("/process");
-      eventSource.onmessage = function (event) {
-        const resultContainer = document.getElementById("result-container");
-        resultContainer.innerHTML += event.data + "<br>";
-      };
-    </script>
+    <title>Home</title>
   </head>
   <body>
     <nav style="display: flex;">
       <ul>
         <a href="/logout">Logout</a>
         <a href="/count">Count_Page</a>
-        <a href="/process">Process_Page</a>
       </ul>
     </nav>
     <hr>
