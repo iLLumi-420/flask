@@ -70,10 +70,7 @@ def get_job_result(job_id):
     job_id_saved = redis.lrange(f'job_id_{user}',0,-1)
     job_id_decoded = [id.decode('utf-8') for id in job_id_saved]
 
-    
-    print(job_id_saved)
-    print(job_id)
-
+  
     if job_id in job_id_decoded:
         result = check_job_status(job_id)
         return f'<p>{result}</p>'
