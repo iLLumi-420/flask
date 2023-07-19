@@ -39,7 +39,6 @@ def home():
         flash('URL has been saved')
         job = queue.enqueue(count_words, url)
 
-        # Store the job ID with the user
         redis.rpush(jobs_key, job.id)
 
     user_urls = redis.lrange(urls_key, 0, -1)
@@ -65,7 +64,6 @@ def check_job_status(job_id):
 
 @app.route('/result/<job_id>')
 def get_job_result(job_id):
-    # Check if the job belongs to the current user
     user = session.get('user')
     job_id_saved = redis.lrange(f'job_id_{user}',0,-1)
     job_id_decoded = [id.decode('utf-8') for id in job_id_saved]
