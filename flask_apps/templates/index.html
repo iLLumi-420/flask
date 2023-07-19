@@ -31,7 +31,7 @@
           <tr>
             <td>{{loop.index}}</td>
             <td>{{url.decode('utf-8')}}</td>
-            <td><a href="/result/{{job_id}}">See result</a></td>
+            <td><a href="/result/{{job_id.decode('utf-8')}}">See result</a></td>
           </tr>
         {% endfor %}
       </table>

@@ -28,33 +28,26 @@ def count():
 @app.route('/', methods=['GET', 'POST'])
 def home():
     if 'user' not in session:
-        session['user']= 'user_1' + str(redis.incr('user_count'))
+        session['user'] = 'user_' + str(redis.incr('user_count'))
 
-    print(session['user'])
-    
-    key = f'urls_{session["user"]}'
+    urls_key = f'urls_{session["user"]}'
+    jobs_key = f'job_id_{session["user"]}'
 
     if request.method == 'POST':
         url = request.form['url']
-        redis.rpush(key, url)
+        redis.rpush(urls_key, url)
         flash('URL has been saved')
         job = queue.enqueue(count_words, url)
-        redis.set(f'job_id_{url}', job.id)
 
+        # Store the job ID with the user
+        redis.rpush(jobs_key, job.id)
 
-
-    user_urls = redis.lrange(key,0, -1) 
-
-    job_ids = []
-    for url in user_urls:
-        job_id = redis.get(f'job_id_{url.decode("utf-8")}').decode('utf-8')
-        print(job_id)
-        job_ids.append(job_id)
-    
-
+    user_urls = redis.lrange(urls_key, 0, -1)
+    job_ids = redis.lrange(jobs_key, 0, -1)
     data = zip(user_urls, job_ids)
-    
+
     return render_template('index.html', data=data)
+
     
    
 
@@ -72,8 +65,22 @@ def check_job_status(job_id):
 
 @app.route('/result/<job_id>')
 def get_job_result(job_id):
-    result = check_job_status(job_id)
-    return f'<p>{result}</p>'
+    # Check if the job belongs to the current user
+    user = session.get('user')
+    job_id_saved = redis.lrange(f'job_id_{user}',0,-1)
+    job_id_decoded = [id.decode('utf-8') for id in job_id_saved]
+
+    
+    print(job_id_saved)
+    print(job_id)
+
+    if job_id in job_id_decoded:
+        result = check_job_status(job_id)
+        return f'<p>{result}</p>'
+    else:
+        return '<p>You do not have permission to access this job result.</p>'
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
