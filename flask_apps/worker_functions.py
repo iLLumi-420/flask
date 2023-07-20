@@ -8,7 +8,7 @@ queue = Queue(connection=redis)
 
 
 def count_words(url):
-    time.sleep(3)
+    time.sleep(15)
     print('Job has been started')
     try:
         res = requests.get(url)
