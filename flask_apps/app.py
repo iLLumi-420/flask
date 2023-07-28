@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, session, flash
-from flask_apps.worker_functions import count_words
+from .worker_functions import count_words
 from redis import Redis
 from rq import Queue
 from rq.job import Job
