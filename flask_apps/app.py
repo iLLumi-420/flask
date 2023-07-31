@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, session, flash
-from .worker_functions import count_words
+from worker_functions import count_words
 from redis import Redis
 from rq import Queue
 from rq.job import Job
@@ -9,7 +9,7 @@ import hashlib
 app = Flask(__name__)
 app.secret_key = 'secret_key'
 
-redis = Redis()
+redis = Redis(host='redis', port=6379)
 queue = Queue(connection=redis)
 
 # app.register_blueprint(auth_bp)
@@ -77,4 +77,4 @@ def get_job_result(job_id):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0',debug=True)

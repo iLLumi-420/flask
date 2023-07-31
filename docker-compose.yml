@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  flask:
+    build: ./
+    command: python /app/flask_apps/app.py
+    ports:
+      - 5000:5000
+    volumes:
+      - ./flask_apps:/app/flask_apps
+    depends_on:
+      - redis
+
+  worker:
+    build:
+      context: ./
+      dockerfile: Dockerfile.worker
+    command: rq worker
+    volumes:
+      - ./flask_apps:/app/flask_apps
+    depends_on:
+      - redis
+
+  redis:
+    image: redis
+    ports:
+      - 6000:6379

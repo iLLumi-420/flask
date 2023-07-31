@@ -5,7 +5,4 @@ WORKDIR /app
 COPY ./requirements.txt /app
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
-COPY ./ /app
-
-EXPOSE 5000
-
+COPY ./flask_apps /app/flask_apps

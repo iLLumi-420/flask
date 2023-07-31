@@ -3,7 +3,7 @@ import time
 from redis import Redis
 from rq import Queue
 
-redis = Redis()
+redis = Redis(host='redis', port=6379)
 queue = Queue(connection=redis)
 
 
