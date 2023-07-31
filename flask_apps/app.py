@@ -53,7 +53,7 @@ def home():
     return render_template('index.html', data=data)
 
 def check_job_status(job_id):
-    redis_conn = Redis()
+    redis_conn = Redis(host='redis', port=6379)
     job = Job.fetch(job_id, connection=redis_conn)
     if job.is_finished:
         word_count = job.result

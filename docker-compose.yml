@@ -12,10 +12,8 @@ services:
       - redis
 
   worker:
-    build:
-      context: ./
-      dockerfile: Dockerfile.worker
-    command: rq worker
+    build: ./
+    command: python /app/flask_apps/worker.py
     volumes:
       - ./flask_apps:/app/flask_apps
     depends_on:
